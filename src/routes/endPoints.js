@@ -8,7 +8,7 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 app.use(cors());
 const port = process.env.PORT || 4000;
-const ip = "172.17.15.150";
+// const ip = "172.17.15.150";
 
 mongoose.connect(process.env.Mongoose_Url, {
         useNewUrlParser: true,
@@ -63,6 +63,6 @@ app.put("/api/updateEmployee", (req, res, next) => {
   serverLogic.employeeCollection_put(req, res, () => { });
 });
 
-app.listen(port,ip, () => {
-    console.log(`Server listening on port http://${ip}:${port}`);
+app.listen(port, () => {
+    console.log(`Server listening on port http://localhost:${port}`);
 });
