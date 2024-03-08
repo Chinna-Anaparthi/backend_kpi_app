@@ -8,7 +8,7 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 app.use(cors());
 const port = process.env.PORT || 4000;
-// const ip = "172.17.15.150";
+const ip = "172.17.15.150";
 
 mongoose.connect(process.env.Mongoose_Url, {
         useNewUrlParser: true,
@@ -27,11 +27,11 @@ app.post("/api/addCategoryQuestions", (req, res, next) => {
   serverLogic.adminMetricspost(req, res, () => { });
 });
 
-app.get("/api/addCategoryQuestions", (req, res, next) => {
+app.get("/api/getCategoryQuestions", (req, res, next) => {
   serverLogic.adminMetricsget(req, res, () => { });
 });
 
-app.put("/api/addCategoryQuestions/:id", (req, res, next) => {
+app.put("/api/updateCategoryQuestions/:id", (req, res, next) => {
   serverLogic.adminMetricsupdate(req, res, () => { });
 });
 
@@ -43,13 +43,14 @@ app.get("/api/getMetrics/:role?", (req, res, next) => {
   serverLogic.adminprocessKpiget(req, res, () => { });
 });
 
-app.delete("/api/removeMetrics/:role/:categoryName?", (req, res, next) => {
+app.delete("/api/removeMetrics/:role?/:categoryName?/:subCategoryName?/:metric?", (req, res, next) => {
   serverLogic.adminprocessKpidelete(req, res, () => { });
 });
-
-app.put("/api/updateEmployeeMetrics", (req, res, next) => {
+app.patch("/api/updateEmployeeMetrics/:role?/:categoryName?/:subCategoryName?/:metric?", (req, res, next) => {
   serverLogic.adminprocessKpiupdate(req, res, () => { });
 });
+
+
 /////employeeCollection
 app.post("/api/registerEmployee", (req, res, next) => {
   serverLogic.employeeCollection_post(req, res, () => { });
@@ -63,6 +64,6 @@ app.put("/api/updateEmployee", (req, res, next) => {
   serverLogic.employeeCollection_put(req, res, () => { });
 });
 
-app.listen(port, () => {
-    console.log(`Server listening on port http://localhost:${port}`);
+app.listen(port,ip, () => {
+    console.log(`Server listening on port http://${ip}:${port}`);
 });
