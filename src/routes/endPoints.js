@@ -8,9 +8,9 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 app.use(cors());
 const port = process.env.PORT || 4000;
-const ip = "172.17.15.150";
-
-mongoose.connect(process.env.Mongoose_Url, {
+const ip = "172.17.15.58";
+console.log(process.env.DATAURL,"12");
+mongoose.connect('mongodb+srv://vandana:IGQelYrm0sl0a4kQ@cluster0.cgjnb8m.mongodb.net/kpi_Models?retryWrites=true&w=majority&appName=Cluster0', {
         useNewUrlParser: true,
         useUnifiedTopology: true,
     })
@@ -39,6 +39,7 @@ app.put("/api/updateCategoryQuestions/:id", (req, res, next) => {
 app.post("/api/addMetrics", (req, res, next) => {
   serverLogic.adminprocessKpipost(req, res, () => { });
 });
+
 app.get("/api/getMetrics/:role?", (req, res, next) => {
   serverLogic.adminprocessKpiget(req, res, () => { });
 });
@@ -63,6 +64,9 @@ app.get("/api/getEmployee/:empId/:Quater?", (req, res, next) => {
 app.put("/api/updateEmployee", (req, res, next) => {
   serverLogic.employeeCollection_put(req, res, () => { });
 });
+
+
+
 
 app.listen(port,ip, () => {
     console.log(`Server listening on port http://${ip}:${port}`);
