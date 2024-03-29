@@ -2,7 +2,7 @@ const databaseMetricsmodel = require("../databaseModels/metrics")
 const databaseprocessKpimodel = require("../databaseModels/processKpi")
 const databaseemployeeCoolection = require("../databaseModels/employeeKpi")
 const mongoose = require('mongoose');
-
+const { ObjectId } = require('mongodb');
 
 /////metrics
 const adminMetricspost = async (req, res) => {
@@ -71,7 +71,7 @@ if(updatedKpi[0].category.length>0){
     }
     if (updatedKpi) {
         const filter = { _id: new ObjectId(updatedKpi[0]._id) };
-        await databaseMetricsmodel.updateOne(filter, updatedKpi[0])
+        await databaseMetricsmodel.findByIdAndUpdate(filter, updatedKpi[0])
         return res.status(200).json({ status: 200, success: true, message: "Metric Added Successfully" });
     } else {
         // If no deletion operation was performed
@@ -107,6 +107,32 @@ const adminprocessKpipost = async (req, res) => {
         return res.status(500).json({ status: 500, success: false, error: "An error occurred while adding data." });
     }
 };
+const adminProcessKpiUpdateByRole = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+
+        // Find the Kpi document by ID and update its fields
+        let updatedEmployeeKpi = await databaseprocessKpimodel.find({_id:id});
+        
+        if(req.body){
+            req.body.processKpi.forEach((element)=>{
+                console.log(element,"Req Body");
+                console.log(updatedEmployeeKpi,"DB Res");
+
+                updatedEmployeeKpi[0].processKpi.push(element)  
+            })
+            const filter = {'_id':new ObjectId(id) };
+            const update = {$set: {processKpi:updatedEmployeeKpi[0].processKpi  }};
+            await databaseprocessKpimodel.updateMany(filter,update)
+            return res.status(200).json({ status: 200, success: true, message: "Metric Added Successfully" });
+        }
+       
+}catch (error) {
+    console.error("Error updating data:", error);
+    return res.status(500).json({ status: 500, success: false, error: error });
+}
+}
 
 const adminprocessKpiget = async (req, res) => {
     try {
@@ -453,5 +479,6 @@ module.exports = {
     adminprocessKpidelete,
     employeeCollection_post,
     employeeCollection_get,
-    employeeCollection_put
+    employeeCollection_put,
+    adminProcessKpiUpdateByRole
 };
