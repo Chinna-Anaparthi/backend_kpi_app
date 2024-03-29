@@ -7,10 +7,10 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 app.use(cors());
-const port = process.env.PORT || 4000;
-const ip = "172.17.15.58";
+const port = process.env.PORT || 5000;
+const ip = "172.17.15.56";
 console.log(process.env.DATAURL,"12");
-mongoose.connect('mongodb+srv://vandana:IGQelYrm0sl0a4kQ@cluster0.cgjnb8m.mongodb.net/kpi_Models?retryWrites=true&w=majority&appName=Cluster0', {
+mongoose.connect('mongodb+srv://subhamkvgms112:G1mCn9lA2ikBQEO3@cluster0.gy0dwhf.mongodb.net/', {
         useNewUrlParser: true,
         useUnifiedTopology: true,
     })
@@ -42,6 +42,9 @@ app.post("/api/addMetrics", (req, res, next) => {
 
 app.get("/api/getMetrics/:role?", (req, res, next) => {
   serverLogic.adminprocessKpiget(req, res, () => { });
+});
+app.put("/api/updateEmployeeMetrics/:id", (req, res, next) => {
+  serverLogic.adminProcessKpiUpdateByRole(req, res, () => { });
 });
 
 app.delete("/api/removeMetrics/:role?/:categoryName?/:subCategoryName?/:metric?", (req, res, next) => {
