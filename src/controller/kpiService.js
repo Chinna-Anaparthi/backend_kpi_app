@@ -5,135 +5,164 @@ const mongoose = require('mongoose');
 const { ObjectId } = require('mongodb');
 
 /////metrics
-const adminMetricspost = async (req, res) => {
-    try {
-        // Extract data from request body
-        const { category, subCategory, metrics } = req.body;
 
-        // Create a new Kpi document
-        const newKpi = new databaseMetricsmodel({
-            _id: new mongoose.Types.ObjectId(),
-            category,
-            subCategory,
-            metrics
-        });
-
-        // Save the new Kpi document to the database
-        const savedKpi = await newKpi.save();
-
-        return res.status(201).json({ status: 200, success: true, data: savedKpi, message: "metricsKpidata added successfully" });
-    } catch (error) {
-        console.error("Error adding data:", error);
-        return res.status(500).json({ status: 500, success: false, error: "An error occurred while adding data." });
-    }
-}
-
-const adminMetricsget = async (req, res) => {
-    try {
-        // Fetch all KPI documents from the database
-        const kpiData = await databaseMetricsmodel.find();
-
-        return res.status(200).json({ status: 200, success: true, data: kpiData, message: "metricKpi data retrieved successfully" });
-    } catch (error) {
-        console.error("Error fetching data:", error);
-        return res.status(500).json({ status: 500, success: false, error: "An error occurred while fetching data." });
-    }
-}
-
-const adminMetricsupdate = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { category, subCategory, metrics } = req.body;
-
-        // Find the Kpi document by ID and update its fields
-        const updatedKpi = await databaseMetricsmodel.find({_id:id});
-
-if(updatedKpi[0].category.length>0){
-    category.forEach((ele)=>{
-        if(!updatedKpi[0].category.includes(ele)){
-            updatedKpi[0].category.push(ele)
+ // Admin
+    // Metrics
+//get api
+    const adminMetricsget = async (req, res) => {
+        try {
+            // Fetch all KPI documents from the database
+            const kpiData = await databaseMetricsmodel.find();
+    
+            return res.status(200).json({ status: 200, success: true, data: kpiData, message: "metricKpi data retrieved successfully" });
+        } catch (error) {
+            console.error("Error fetching data:", error);
+            return res.status(500).json({ status: 500, success: false, error: "An error occurred while fetching data." });
         }
-    })
-    if(updatedKpi[0].subCategory.length>0){
-        subCategory.forEach((ele)=>{
-            if(!updatedKpi[0].subCategory.includes(ele)){
-                updatedKpi[0].subCategory.push(ele)
+    }
+    //post api in admin metrics
+    const adminMetricspost = async (req, res) => {
+        try {
+            // Extract data from request body
+            const { category, subCategory, metrics } = req.body;
+    
+            // Create a new Kpi document
+            const newKpi = new databaseMetricsmodel({
+                _id: new mongoose.Types.ObjectId(),
+                category,
+                subCategory,
+                metrics
+            });
+    
+            // Save the new Kpi document to the database
+            const savedKpi = await newKpi.save();
+    
+            return res.status(201).json({ status: 200, success: true, data: savedKpi, message: "metricsKpidata added successfully" });
+        } catch (error) {
+            console.error("Error adding data:", error);
+            return res.status(500).json({ status: 500, success: false, error: "An error occurred while adding data." });
+        }
+    }
+    
+    //updateapi employee screen
+
+    const adminMetricsupdate = async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { category, subCategory, metrics } = req.body;
+    
+            // Find the Kpi document by ID and update its fields
+            const updatedKpi = await databaseMetricsmodel.find({_id:id});
+    
+    if(updatedKpi[0].category.length>0){
+        category.forEach((ele)=>{
+            if(!updatedKpi[0].category.includes(ele)){
+                updatedKpi[0].category.push(ele)
             }
         })
-        if(updatedKpi[0].metrics.length>0){
-            metrics.forEach((ele)=>{
-                if(!updatedKpi[0].metrics.includes(ele)){
-                    updatedKpi[0].metrics.push(ele)
+        if(updatedKpi[0].subCategory.length>0){
+            subCategory.forEach((ele)=>{
+                if(!updatedKpi[0].subCategory.includes(ele)){
+                    updatedKpi[0].subCategory.push(ele)
                 }
             })
-     
-}
+            if(updatedKpi[0].metrics.length>0){
+                metrics.forEach((ele)=>{
+                    if(!updatedKpi[0].metrics.includes(ele)){
+                        updatedKpi[0].metrics.push(ele)
+                    }
+                })
+         
     }
-    if (updatedKpi) {
-        const filter = { _id: new ObjectId(updatedKpi[0]._id) };
-        await databaseMetricsmodel.findByIdAndUpdate(filter, updatedKpi[0])
-        return res.status(200).json({ status: 200, success: true, message: "Metric Added Successfully" });
-    } else {
-        // If no deletion operation was performed
-        return res.status(404).json({ status: 404, success: false, error: "No data found for deletion" });
-    }
-}
-        // Check if the document was found and updated
-      
-    } catch (error) {
-        console.error("Error updating data:", error);
-        return res.status(500).json({ status: 500, success: false, error: "An error occurred while updating data." });
-    }
-}
-/////processKpi
-const adminprocessKpipost = async (req, res) => {
-    try {
-        // Extract data from request body
-        const { role, processKpi } = req.body;
-
-        // Create a new Kpi document
-        const newKpi = new databaseprocessKpimodel({
-            _id: new mongoose.Types.ObjectId(),
-            role,
-            processKpi
-        });
-
-        // Save the new Kpi document to the database
-        const savedKpi = await newKpi.save();
-
-        return res.status(201).json({ status: 200, success: true, data: savedKpi, message: "processKpidata added successfully" });
-    } catch (error) {
-        console.error("Error adding data:", error);
-        return res.status(500).json({ status: 500, success: false, error: "An error occurred while adding data." });
-    }
-};
-const adminProcessKpiUpdateByRole = async (req, res) => {
-    try {
-        const { id } = req.params;
-        
-
-        // Find the Kpi document by ID and update its fields
-        let updatedEmployeeKpi = await databaseprocessKpimodel.find({_id:id});
-        
-        if(req.body){
-            req.body.processKpi.forEach((element)=>{
-                console.log(element,"Req Body");
-                console.log(updatedEmployeeKpi,"DB Res");
-
-                updatedEmployeeKpi[0].processKpi.push(element)  
-            })
-            const filter = {'_id':new ObjectId(id) };
-            const update = {$set: {processKpi:updatedEmployeeKpi[0].processKpi  }};
-            await databaseprocessKpimodel.updateMany(filter,update)
-            return res.status(200).json({ status: 200, success: true, message: "Metric Added Successfully" });
         }
-       
-}catch (error) {
-    console.error("Error updating data:", error);
-    return res.status(500).json({ status: 500, success: false, error: error });
-}
-}
+        if (updatedKpi) {
+            const filter = { _id: new ObjectId(updatedKpi[0]._id) };
+            await databaseMetricsmodel.findByIdAndUpdate(filter, updatedKpi[0])
+            return res.status(200).json({ status: 200, success: true, message: "Metric Added Successfully" });
+        } else {
+            // If no deletion operation was performed
+            return res.status(404).json({ status: 404, success: false, error: "No data found for deletion" });
+        }
+    }
+            // Check if the document was found and updated
+          
+        } catch (error) {
+            console.error("Error updating data:", error);
+            return res.status(500).json({ status: 500, success: false, error: "An error occurred while updating data." });
+        }
+    }
 
+    
+    //delete api
+
+    const adminprocessKpidelete = async (req, res) => {
+        var dataInfo = []
+        try {
+            const { role } = req.params.role;
+            const queryRole = await databaseprocessKpimodel.findOne(role);
+            dataInfo = queryRole
+            let deletionPerformed = false; 
+    
+            dataInfo.processKpi.forEach((element, index) => {
+                if (req.params.categoryName && req.params.subCategoryName === undefined && req.params.metric === undefined) {
+                    if (element.categoryName === req.params.categoryName) {
+                        queryRole.processKpi.splice(index, 1);
+                        deletionPerformed = true;
+                    }
+                }
+                if (req.params.categoryName && req.params.subCategoryName && req.params.metric === undefined) {
+                    element.subCategory.forEach((subEle, subIndex) => {
+                        if (element.categoryName === req.params.categoryName) {
+                            if (subEle.subCategoryName === req.params.subCategoryName) {
+                                queryRole.processKpi[index].subCategory.splice(subIndex, 1);
+                                deletionPerformed = true;
+                            }
+                        }
+                    })
+                }
+                if (req.params.categoryName && req.params.subCategoryName && req.params.metric) {
+                    element.subCategory.forEach((subEle, subIndex) => {
+                        if (element.categoryName === req.params.categoryName) {
+                            if (subEle.subCategoryName === req.params.subCategoryName) {
+                                subEle.queries.forEach((mEle, mIndex) => {
+                                    if (mEle.metric === req.params.metric) {
+                                        queryRole.processKpi[index].subCategory[subIndex].queries.splice(mIndex, 1);
+                                        deletionPerformed = true;
+                                    }
+                                })
+                            }
+                        }
+                    })
+                }
+            });
+    
+            if (deletionPerformed) {
+                await databaseprocessKpimodel.updateOne(role, queryRole);
+                return res.status(200).json({ status: 200, success: true, message: "processKpiData deleted successfully" });
+            } else {
+                // If no deletion operation was performed
+                return res.status(404).json({ status: 404, success: false, error: "No data found for deletion" });
+            }
+        } catch (error) {
+            console.error("Error deleting data:", error);
+            return res.status(500).json({ status: 500, success: false, error: "An error occurred while deleting data." });
+        }
+    };
+
+
+
+
+
+
+
+
+
+
+
+
+// ProcessKPI Collections-
+
+//get api 
 const adminprocessKpiget = async (req, res) => {
     try {
         // Extract the role from the request parameters
@@ -156,56 +185,29 @@ const adminprocessKpiget = async (req, res) => {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-const processKpiUpdate =async(req,res)=>{
-
-    //console.log(req.params.id,"110",updates);
+//post api
+const adminprocessKpipost = async (req, res) => {
     try {
+        // Extract data from request body
+        const { role, processKpi } = req.body;
 
-        const employeeInfo = await databaseemployeeCoolection.find({ empId: req.params.empId })
-        console.log(employeeInfo[1]);
+        // Create a new Kpi document
+        const newKpi = new databaseprocessKpimodel({
+            _id: new mongoose.Types.ObjectId(),
+            role,
+            processKpi
+        });
 
-        // await databaseemployeeCoolection.findByIdAndUpdate(employeeInfo, req.body, { useFindAndModify: false }).then(data => {
-        //     if (!data) {
-        //         res.status(404).send({
-        //             message: `User not found.`
-        //         });
-        //     } else {
-        //         console.log(req.body, employeeInfo);
+        // Save the new Kpi document to the database
+        const savedKpi = await newKpi.save();
 
-        //         res.send({ message: "User updated successfully." })
-
-        //         // return res.status(200).json({ message: 'Employee data updated successfully', employeeInfo: updateEMPLOYEE  });
-        //     }
-        // }).catch(err => {
-        //     res.status(500).send({
-        //         message: err.message
-        //     });
-        // });
-
-
-        // if (!updatedEmployee) {
-        //             return res.status(404).json({ error: 'Employee not found' });
-        //         }
-
-        // 
+        return res.status(201).json({ status: 200, success: true, data: savedKpi, message: "processKpidata added successfully" });
     } catch (error) {
-            console.error('Error updating employee:', error);
-            return res.status(500).json({ error: 'Internal Server Error' });
-        }
- 
-}
-
+        console.error("Error adding data:", error);
+        return res.status(500).json({ status: 500, success: false, error: "An error occurred while adding data." });
+    }
+};
+//patch api
 
 const adminprocessKpiupdate = async (req, res) => {
     var dataInfo = []
@@ -267,67 +269,79 @@ const adminprocessKpiupdate = async (req, res) => {
         return res.status(500).json({ status: 500, success: false, error: "An error occurred while deleting data." });
     }
 };
+//put api
 
-const adminprocessKpidelete = async (req, res) => {
-    var dataInfo = []
+const adminProcessKpiUpdateByRole = async (req, res) => {
     try {
-        const { role } = req.params.role;
-        const queryRole = await databaseprocessKpimodel.findOne(role);
-        dataInfo = queryRole
-        let deletionPerformed = false; 
+        const { id } = req.params;
+        console.log(id,'sssssssssssss');
+        
+        // Find the Kpi document by ID and update its fields
+        let updatedEmployeeKpi = await databaseprocessKpimodel.find({_id:id});
+        
+        if(req.body){
+            req.body.processKpi.forEach((element)=>{
+                console.log(element,"Req Body");
+                console.log(updatedEmployeeKpi,"DB Res");
 
-        dataInfo.processKpi.forEach((element, index) => {
-            if (req.params.categoryName && req.params.subCategoryName === undefined && req.params.metric === undefined) {
-                if (element.categoryName === req.params.categoryName) {
-                    queryRole.processKpi.splice(index, 1);
-                    deletionPerformed = true;
+                updatedEmployeeKpi[0].processKpi.push(element)  
+            })
+            const filter = {'_id':new ObjectId(id) };
+            const update = {$set: {processKpi:updatedEmployeeKpi[0].processKpi  }};
+            await databaseprocessKpimodel.updateMany(filter,update)
+            return res.status(200).json({ status: 200, success: true, message: "Metric Added Successfully" });
+        }
+       
+}catch (error) {
+    console.error("Error updating data:", error);
+    return res.status(500).json({ status: 500, success: false, error: error });
+}
+}
+
+
+
+
+
+
+
+// Employee Collection controller service file
+
+const employeeCollection_get = async (req, res) => {
+    try {
+        // Extract empId and Quater from the request parameters
+        const { empId, Quater } = req.params;
+
+        // Retrieve the employee with the specified empId from the database
+        const employee = await databaseemployeeCoolection.findOne({ empId });
+
+        // If the employee is found
+        if (employee) {
+            // If Quater is provided, find the specific Quater within the employee's Quater array
+            if (Quater) {
+                const selectedQuater = employee.Quater.find(q => q.Quater === Quater);
+
+                // If the Quater is found within the employee's Quater array, respond with it
+                if (selectedQuater) {
+                    res.status(200).json({ status: 200, success: true, response: selectedQuater });
+                } else {
+                    // If the Quater is not found, respond with a 404 status
+                    res.status(404).json({ message: 'Quater not found for the specified empId' });
                 }
+            } else {
+                // If Quater is not provided, respond with the entire employee data
+                res.status(200).json({ status: 200, success: true, response: employee });
             }
-            if (req.params.categoryName && req.params.subCategoryName && req.params.metric === undefined) {
-                element.subCategory.forEach((subEle, subIndex) => {
-                    if (element.categoryName === req.params.categoryName) {
-                        if (subEle.subCategoryName === req.params.subCategoryName) {
-                            queryRole.processKpi[index].subCategory.splice(subIndex, 1);
-                            deletionPerformed = true;
-                        }
-                    }
-                })
-            }
-            if (req.params.categoryName && req.params.subCategoryName && req.params.metric) {
-                element.subCategory.forEach((subEle, subIndex) => {
-                    if (element.categoryName === req.params.categoryName) {
-                        if (subEle.subCategoryName === req.params.subCategoryName) {
-                            subEle.queries.forEach((mEle, mIndex) => {
-                                if (mEle.metric === req.params.metric) {
-                                    queryRole.processKpi[index].subCategory[subIndex].queries.splice(mIndex, 1);
-                                    deletionPerformed = true;
-                                }
-                            })
-                        }
-                    }
-                })
-            }
-        });
-
-        if (deletionPerformed) {
-            await databaseprocessKpimodel.updateOne(role, queryRole);
-            return res.status(200).json({ status: 200, success: true, message: "processKpiData deleted successfully" });
         } else {
-            // If no deletion operation was performed
-            return res.status(404).json({ status: 404, success: false, error: "No data found for deletion" });
+            // If no employee is found with the specified empId, respond with a 404 status
+            res.status(404).json({ message: 'Employee not found' });
         }
     } catch (error) {
-        console.error("Error deleting data:", error);
-        return res.status(500).json({ status: 500, success: false, error: "An error occurred while deleting data." });
+        // Handle errors
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
-};
+}
 
-
-
-
-
-
-/////employeeCollection
 const employeeCollection_post = async (req, res) => {
     try {
         const {
@@ -369,42 +383,6 @@ const employeeCollection_post = async (req, res) => {
 
         return res.status(201).json({ status: 200, success: true, data: savedEmployee, message: "employeeCollectionkpidata added successfully" });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
-}
-
-const employeeCollection_get = async (req, res) => {
-    try {
-        // Extract empId and Quater from the request parameters
-        const { empId, Quater } = req.params;
-
-        // Retrieve the employee with the specified empId from the database
-        const employee = await databaseemployeeCoolection.findOne({ empId });
-
-        // If the employee is found
-        if (employee) {
-            // If Quater is provided, find the specific Quater within the employee's Quater array
-            if (Quater) {
-                const selectedQuater = employee.Quater.find(q => q.Quater === Quater);
-
-                // If the Quater is found within the employee's Quater array, respond with it
-                if (selectedQuater) {
-                    res.status(200).json({ status: 200, success: true, response: selectedQuater });
-                } else {
-                    // If the Quater is not found, respond with a 404 status
-                    res.status(404).json({ message: 'Quater not found for the specified empId' });
-                }
-            } else {
-                // If Quater is not provided, respond with the entire employee data
-                res.status(200).json({ status: 200, success: true, response: employee });
-            }
-        } else {
-            // If no employee is found with the specified empId, respond with a 404 status
-            res.status(404).json({ message: 'Employee not found' });
-        }
-    } catch (error) {
-        // Handle errors
         console.error(error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
@@ -467,13 +445,31 @@ const employeeCollection_put = async (req, res) => {
 };
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 module.exports = {
     adminMetricspost,
     adminMetricsget,
     adminMetricsupdate,
     adminprocessKpipost,
     adminprocessKpiget,
-    processKpiUpdate,
     employeeCollection_put,
     adminprocessKpiupdate,
     adminprocessKpidelete,
