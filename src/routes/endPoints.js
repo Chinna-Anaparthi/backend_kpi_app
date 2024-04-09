@@ -8,7 +8,7 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 app.use(cors());
 const port = process.env.PORT || 5000;
-const ip = "172.17.15.58";
+const ip = "localhost";
 console.log(process.env.DATAURL,"12");
 //database connection
 mongoose.connect('mongodb+srv://subhamkvgms112:G1mCn9lA2ikBQEO3@cluster0.gy0dwhf.mongodb.net/', {
@@ -51,48 +51,29 @@ app.get("/api/getMetrics/:role?", (req, res, next) => {
   serverLogic.adminprocessKpiget(req, res, () => { });
 });
 
-////processKpi-apis
 app.post("/api/addMetrics", (req, res, next) => {
   serverLogic.adminprocessKpipost(req, res, () => { });
 });
 
-app.patch("/api/updateEmployeeMetrics/:role?/:categoryName?/:subCategoryName?/:metric?", (req, res, next) => {
-  serverLogic.adminprocessKpiupdate(req, res, () => { });
+app.patch("/api/updateProcessKpi/:id?/:categoryName?/:subCategoryName?/:metric?", (req, res, next) => {
+  serverLogic.processKpiUpdateByIdForAdmin(req, res, () => { });
 });
-
 
 app.put("/api/updateEmployeeMetrics/:id", (req, res, next) => {
-  serverLogic.adminProcessKpiUpdateByRole(req, res, () => { });
+  serverLogic.adminProcessKpiUpdateById(req, res, () => { });
 });
-
-
-
-
-
-
-
-
-// Employee Collection
-
-
 
 app.get("/api/getEmployee/:empId/:Quater?", (req, res, next) => {
   serverLogic.employeeCollection_get(req, res, () => { });
 });
 
-/////employeeCollection
 app.post("/api/registerEmployee", (req, res, next) => {
   serverLogic.employeeCollection_post(req, res, () => { });
 });
 
-
-
 app.put("/api/updateEmployee", (req, res, next) => {
   serverLogic.employeeCollection_put(req, res, () => { });
 });
-
-
-
 
 app.listen(port,ip, () => {
     console.log(`Server listening on port http://${ip}:${port}`);
