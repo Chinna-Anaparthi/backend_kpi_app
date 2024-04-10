@@ -218,16 +218,14 @@ const processKpiUpdateByIdForAdmin = async (req, res) => {
             modelData[0].processKpi.forEach((element, index) => {
                 if (req.params.categoryName && req.params.subCategoryName === undefined && req.params.metric === undefined) {
                     if (element.categoryName === req.params.categoryName) {
-                        queryRole.processKpi.splice(index, 1);
-                        deletionPerformed = true;
+                      element.categoryName = req.body.categoryName
                     }
                 }
                 if (req.params.categoryName && req.params.subCategoryName && req.params.metric === undefined) {
                     element.subCategory.forEach((subEle, subIndex) => {
                         if (element.categoryName === req.params.categoryName) {
                             if (subEle.subCategoryName === req.params.subCategoryName) {
-                                // queryRole.processKpi[index].subCategory.splice(subIndex, 1);
-                                // deletionPerformed = true;
+                                subEle.subCategoryName = req.body.subCategoryName
                             }
                         }
                     })
@@ -238,11 +236,8 @@ const processKpiUpdateByIdForAdmin = async (req, res) => {
                             if (subEle.subCategoryName === req.params.subCategoryName) {
                                 subEle.queries.forEach((mEle, mIndex) => {
                                     if (mEle.metric === req.params.metric) {
-                                            console.log(mEle,"243", req.body);
-                                            mEle.metric = req.body.metric === null? mEle.metric: req.body.metric
-                                            mEle.quantityTarget = req.body.quantityTarget
-                                        // queryRole.processKpi[index].subCategory[subIndex].queries.splice(mIndex, 1);
-                                        // deletionPerformed = true;
+                                            mEle.metric = req.body.metric === undefined? mEle.metric: req.body.metric
+                                            mEle.quantityTarget = req.body.quantityTarget === undefined? mEle.quantityTarget:req.body.quantityTarget
                                     }
                                 })
                             }
@@ -253,8 +248,11 @@ const processKpiUpdateByIdForAdmin = async (req, res) => {
            // console.log(JSON.stringify(modelData),"253");
             const filter = {'_id':new ObjectId(id) };
             const update = {$set: {processKpi:modelData[0].processKpi  }};
-            await databaseprocessKpimodel.updateMany(filter,update)
-            return res.status(200).json({ status: 200, success: true, message: "Metric Added Successfully" });
+            const result = await databaseprocessKpimodel.updateMany(filter,update)
+            console.log(result,"252",res);
+            if(result.modifiedCount !== 0){
+                return res.status(200).json({ status: 200, success: true, message: "KPI Is Updated Successfully" });
+            }    
         }
 
     }catch (error) {
@@ -263,6 +261,50 @@ const processKpiUpdateByIdForAdmin = async (req, res) => {
     }
     
 };
+
+// Add New SubCategory or Metrics in Existing
+const processKpiAddNewInExistingByIdForAdmin = async (req, res) => {
+    const { id } = req.params;
+    try{
+        let modelData = await databaseprocessKpimodel.find({_id:id});
+        if(modelData !== undefined || modelData.length !== 0 && modelData[0].role === 'employee'){
+            modelData[0].processKpi.forEach((element, index) => {
+                if (req.params.categoryName && req.params.subCategoryName === undefined) {
+                    if (element.categoryName === req.params.categoryName) {
+                      element.subCategory.push(req.body)
+                    }
+                }
+                if (req.params.categoryName && req.params.subCategoryName) {
+                    element.subCategory.forEach((subEle, subIndex) => {
+                        if (element.categoryName === req.params.categoryName) {
+                            if (subEle.subCategoryName === req.params.subCategoryName) {
+                                subEle.queries.push(req.body)
+                            }
+                        }
+                    })
+                }
+                
+            });
+            //console.log(JSON.stringify(modelData),"253");
+            const filter = {'_id':new ObjectId(id) };
+            const update = {$set: {processKpi:modelData[0].processKpi  }};
+            const result = await databaseprocessKpimodel.updateMany(filter,update)
+            if(result.modifiedCount !== 0){
+                return res.status(200).json({ status: 200, success: true, message: "New KPI Type is added Successfully" });
+            } else{
+                return res.status({
+                    success: false, message: "Error in Payload"
+                })
+            }   
+        }
+
+    }catch (error) {
+        console.error("Error updating KPI Data:", error);
+        return res.status(500).json({ status: 500, success: false, error: error });
+    }
+    
+};
+
 //put api
 
 const adminProcessKpiUpdateById = async (req, res) => {
@@ -468,5 +510,6 @@ module.exports = {
     employeeCollection_post,
     employeeCollection_get,
     employeeCollection_put,
-    adminProcessKpiUpdateById
+    adminProcessKpiUpdateById,
+    processKpiAddNewInExistingByIdForAdmin
 };

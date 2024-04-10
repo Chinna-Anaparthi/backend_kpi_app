@@ -59,6 +59,9 @@ app.patch("/api/updateProcessKpi/:id?/:categoryName?/:subCategoryName?/:metric?"
   serverLogic.processKpiUpdateByIdForAdmin(req, res, () => { });
 });
 
+app.patch("/api/addNewProcessKpiInExisting/:id?/:categoryName?/:subCategoryName?", (req, res, next) => {
+  serverLogic.processKpiAddNewInExistingByIdForAdmin(req, res, () => { });
+});
 app.put("/api/updateEmployeeMetrics/:id", (req, res, next) => {
   serverLogic.adminProcessKpiUpdateById(req, res, () => { });
 });
