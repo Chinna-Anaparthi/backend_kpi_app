@@ -99,11 +99,14 @@ const { ObjectId } = require('mongodb');
         var dataInfo = []
         try {
             const { role } = req.params.role;
-            const queryRole = await databaseprocessKpimodel.findOne(role);
+           // console.log(req.params.role,"102");
+            const queryRole = await databaseprocessKpimodel.findOne({role:req.params.role});
             dataInfo = queryRole
+            
             let deletionPerformed = false; 
-    
+   // console.log(dataInfo,"106");
             dataInfo.processKpi.forEach((element, index) => {
+                console.log(element,index)
                 if (req.params.categoryName && req.params.subCategoryName === undefined && req.params.metric === undefined) {
                     if (element.categoryName === req.params.categoryName) {
                         queryRole.processKpi.splice(index, 1);
@@ -135,9 +138,18 @@ const { ObjectId } = require('mongodb');
                     })
                 }
             });
-    
+    //console.log(queryRole,"141");
             if (deletionPerformed) {
-                await databaseprocessKpimodel.updateOne(role, queryRole);
+
+                const filter = {'role':req.params.role };
+            const update = {$set: {processKpi:queryRole.processKpi  }};
+            const result = await databaseprocessKpimodel.updateMany(filter,update)
+          //  console.log(result,"252",res);
+
+
+
+
+                //await databaseprocessKpimodel.updateOne(req.params.role, queryRole);
                 return res.status(200).json({ status: 200, success: true, message: "processKpiData deleted successfully" });
             } else {
                 // If no deletion operation was performed
@@ -170,10 +182,11 @@ const adminprocessKpiget = async (req, res) => {
 
         // Define the query object based on whether a role is provided
         const query = role ? { role } : {};
+       // console.log(query,'175')
 
         // Fetch KPI documents from the database based on the query
         const kpiData = await databaseprocessKpimodel.find(query);
-
+     //console.log(kpiData,'178');
         if (!kpiData) {
             return res.status(404).json({ status: 404, success: false, error: "No processKpi data found" });
         }
@@ -211,21 +224,36 @@ const adminprocessKpipost = async (req, res) => {
 
 const processKpiUpdateByIdForAdmin = async (req, res) => {
     const { id } = req.params;
+    let errorResResult ='';
     try{
         let modelData = await databaseprocessKpimodel.find({_id:id});
+        console.log(req.body,"241",modelData,"PARAMS",req.params);
         if(modelData !== undefined || modelData.length !== 0 && modelData[0].role === 'employee'){
             
             modelData[0].processKpi.forEach((element, index) => {
                 if (req.params.categoryName && req.params.subCategoryName === undefined && req.params.metric === undefined) {
                     if (element.categoryName === req.params.categoryName) {
-                      element.categoryName = req.body.categoryName
+                      //element.categoryName = req.body.categoryName
+                      element.subCategory.push(req.body)
                     }
                 }
                 if (req.params.categoryName && req.params.subCategoryName && req.params.metric === undefined) {
                     element.subCategory.forEach((subEle, subIndex) => {
                         if (element.categoryName === req.params.categoryName) {
                             if (subEle.subCategoryName === req.params.subCategoryName) {
-                                subEle.subCategoryName = req.body.subCategoryName
+                                //subEle.subCategoryName = req.body.subCategoryName
+                                if(req.params.metric === undefined){
+                                    subEle.queries.forEach((mEle, mIndex) => {
+                                        console.log(mEle,"246");
+                                        if(mEle.metric !== req.body.metric){
+                                            subEle.queries.push(req.body)
+                                            console.log(JSON.stringify(modelData),"253", errorResResult);
+                                        }else{
+                                            errorResResult = req.body.metric+' is already exist.'
+                                            console.log("Error In 250");
+                                        }
+                                    })
+                                }
                             }
                         }
                     })
@@ -245,14 +273,16 @@ const processKpiUpdateByIdForAdmin = async (req, res) => {
                     })
                 }
             });
-           // console.log(JSON.stringify(modelData),"253");
+            console.log(JSON.stringify(modelData),"253", errorResResult);
             const filter = {'_id':new ObjectId(id) };
             const update = {$set: {processKpi:modelData[0].processKpi  }};
-            const result = await databaseprocessKpimodel.updateMany(filter,update)
-            console.log(result,"252",res);
+           const result = await databaseprocessKpimodel.updateMany(filter,update)
+            console.log(result.modifiedCount,"252");
             if(result.modifiedCount !== 0){
                 return res.status(200).json({ status: 200, success: true, message: "KPI Is Updated Successfully" });
-            }    
+            }else{
+                return res.json({ status: 200, success: true, message: errorResResult });
+            } 
         }
 
     }catch (error) {
@@ -315,8 +345,8 @@ const adminProcessKpiUpdateById = async (req, res) => {
         
         if(req.body){
             req.body.processKpi.forEach((element)=>{
-                console.log(element,"Req Body");
-                console.log(updatedEmployeeKpi,"DB Res");
+               // console.log(element,"Req Body");
+               // console.log(updatedEmployeeKpi,"DB Res");
 
                 updatedEmployeeKpi[0].processKpi.push(element)  
             })

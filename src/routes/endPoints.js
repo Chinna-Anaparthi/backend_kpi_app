@@ -1,7 +1,7 @@
 var express = require("express");
 const mongoose = require("mongoose");
 const serverLogic = require("../controller/kpiService")
-const dotenv = require("dotenv").config()
+require("dotenv").config()
 const app = express();
 const cors = require("cors");
 const bodyParser = require("body-parser");
@@ -9,20 +9,19 @@ app.use(bodyParser.json());
 app.use(cors());
 const port = process.env.PORT || 5000;
 const ip = "localhost";
-console.log(process.env.DATAURL,"12");
-//database connection
-mongoose.connect('mongodb+srv://subhamkvgms112:G1mCn9lA2ikBQEO3@cluster0.gy0dwhf.mongodb.net/', {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    })
+// console.log(process.env.DATAURL,"12");
+const uri = process.env.MONGO_UR;
+
+
+
+    mongoose.connect('mongodb+srv://subhamkvgms112:ht6kj7ToqUvY7UOp@cluster0.gy0dwhf.mongodb.net/')
     .then(() => {
-        console.log("kpi_app dataBase connected.");
+      console.log('Connected to MongoDB');
+      // Continue with your application logic here
     })
     .catch((error) => {
-        console.log(error);
+      console.error('Error connecting to MongoDB:', error);
     });
-
-
 
     // Admin
     // Metrics
@@ -42,6 +41,7 @@ app.put("/api/updateCategoryQuestions/:id", (req, res, next) => {
 });
 
 app.delete("/api/removeMetrics/:role?/:categoryName?/:subCategoryName?/:metric?", (req, res, next) => {
+  console.log(req.params.role,"44");
   serverLogic.adminprocessKpidelete(req, res, () => { });
 });
 
