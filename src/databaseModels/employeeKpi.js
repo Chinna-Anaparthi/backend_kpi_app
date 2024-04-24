@@ -6,6 +6,7 @@ const employeeSchema = new mongoose.Schema({
     firstName : String,
     lastName : String,
     email: String,
+    phone:Number,
     role : String,
     practice:String,
     password:String,
@@ -14,10 +15,10 @@ const employeeSchema = new mongoose.Schema({
     directorName:String,
     hrName:String,
     profileImag:String,
-    Quater: [],
+    quater: [],
     empTime: { type: Date, default: Date.now }
 });
 
-const employeeSchemakpi = mongoose.model('employeeCollection', employeeSchema);
+const employeeSchemakpi = mongoose.model('Employee', employeeSchema);
 
 module.exports = employeeSchemakpi;
