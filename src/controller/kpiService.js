@@ -7,86 +7,87 @@ const jwt = require("jsonwebtoken");
 
 const jwtSecret = "KPI Application";
 
-const registration = async (req, res) => {
-  let defaultQuater = [
-    {
-      quater: "Q1",
-      year: "2024",
-      score: "0",
-      status: "InCompleted",
-      "process KPI": [],
-    },
-    {
-      quater: "Q2",
-      year: "2024",
-      score: "0",
-      status: "InCompleted",
-      "process KPI": [],
-    },
-    {
-      quater: "Q3",
-      year: "2024",
-      score: "0",
-      status: "InCompleted",
-      "process KPI": [],
-    },
-    {
-      quater: "Q4",
-      year: "2024",
-      score: "0",
-      status: "InCompleted",
-      "process KPI": [],
-    },
-  ];
+const registration = (req, res1) => {
+  let modelData = [];
+  let defaultQuater=[];
+  const {
+    empId,
+    firstName,
+    lastName,
+    phone,
+    email,
+    role,
+    userName,
+    practice,
+    password,
+    location,
+    managerName,
+    directorName,
+    hrName,
+    profileImag,
+    team,
+    quater,
+  } = req.body;
+  const findProcessKPI = (role) => {
+    return ProcessKPI.find({ role: role === 'Employee' ? 'employee' : role === 'Manager' ? 'manager' : 'director' });
+  };
+  findProcessKPI(role)
+    .then((data) => {
+      modelData = data;
+      defaultQuater = [
+       {
+         quater: "Quarter1",
+         year: "2024",
+         score: "0",
+         status: "InCompleted",
+         timeLine:['March','April'],
+         processKPI: modelData[0].processKpi,
+       },
+       {
+         quater: "Quarter2",
+         year: "2024",
+         score: "0",
+         status: "InCompleted",
+         timeLine:['June','July'],
+         processKPI: modelData[0].processKpi,
+       },
+       {
+         quater: "Quarter3",
+         year: "2024",
+         score: "0",
+         status: "InCompleted",
+         timeLine:['September','October'],
+         processKPI:modelData[0].processKpi,
+       },
+       {
+         quater: "Quarter4",
+         year: "2024",
+         score: "0",
+         status: "InCompleted",
+         timeLine:['December','January'],
+         processKPI:modelData[0].processKpi,
+       },
+     ];
 
-  try {
-    const {
-      empId,
-      firstName,
-      lastName,
-      phone,
-      email,
-      role,
-      practice,
-      password,
-      location,
-      managerName,
-      directorName,
-      hrName,
-      profileImag,
-      quater,
-    } = req.body;
+      if (!firstName || !lastName || !role || !email || !phone || !password) {
+        throw new Error("All fields (First_name, Last_name, Role, Email, Phone, and Password) are required.");
+      }
 
-    if (!firstName || !lastName || !role || !email || !phone || !password) {
-      throw new Error(
-        "All fields (First_name, Last_name, Role, Email, Phone, and Password) are required."
-      );
-    }
+      return Promise.all([Employee.findOne({ email }), Employee.findOne({ phone })]);
+    })
+    .then(([existingUser, existingPhoneNumber]) => {
+      if (existingUser) {
+        throw new Error("This Email is already registered. Please use a different email.");
+      }
+      if (existingPhoneNumber) {
+        throw new Error("This phone number is already registered. Please use a different phone number.");
+      }
 
-    const existingUser = await Employee.findOne({ email });
-    const existingPhoneNumber = await Employee.findOne({ phone });
-    if (existingUser) {
-      return res.status(400).json({
-        status: 400,
-        success: false,
-        message:
-          "This Email is already registered. Please use a different email.",
-      });
-    }
-    if (existingPhoneNumber) {
-      return res.status(400).json({
-        status: 400,
-        success: false,
-        message:
-          "This phone number is already registered. Please use a different phone number.",
-      });
-    }
-
-    if (quater.length === 0) {
-      defaultQuater.forEach((element) => {
-        quater.push(element);
-      });
-      console.log(quater, "62");
+      if (quater.length === 0) {
+        defaultQuater.forEach((element) => {
+          quater.push(element);
+        });
+      }
       const newUserRegistration = new Employee({
         _id: new mongoose.Types.ObjectId(),
         empId,
@@ -95,6 +96,7 @@ const registration = async (req, res) => {
         phone,
         email,
         role,
+        userName,
         practice,
         password,
         location,
@@ -102,44 +104,58 @@ const registration = async (req, res) => {
         directorName,
         hrName,
         profileImag,
+        team,
         quater,
       });
-      await newUserRegistration.save();
-      res.status(201).json({
-        status: 200,
-        success: true,
-        message: "User Successfully Registered...! Now You Can Login",
-      });
-    }
-  } catch (error) {
-    //logger.error(error);
-    res.status(500).json({
-      status: 500,
-      success: false,
-      message: "Error occurred while registering user",
-      error: error.message,
-    });
-  }
 
-  //console.log(req.body,"10");
+      return newUserRegistration.save();
+    })
+    .then((res) => {
+      if(res && res._id){
+      Employee.find({userName:res.managerName}).then((mData)=>{
+      mData[0].team.push(res._id)
+            const filter ={userName:res.managerName}
+            const update = { $set:mData[0] };
+            Employee.updateOne(filter, update).then((result)=>{
+             
+              if( result.modifiedCount !==0){
+                res1.status(201).json({
+                  status: 200,
+                  success: true,
+                  message: "User Successfully Registered...! Now You Can Login",
+                });
+
+              }
+            });
+      })
+      }
+      
+
+     //console.log(res,"124");
+    })
+    .catch((error) => {
+      res.status(500).json({
+        status: 500,
+        success: false,
+        message: "Error occurred while registering user",
+        error: error.message,
+      });
+    });
 };
 const appLogin = async (req, res) => {
   console.log(req.body, "94");
-  if (!req.body.password || !req.body.empId) {
-    return res.status(400).json({ error: "Password and empId are required." });
+  if (!req.body.password || !req.body.email) {
+    return res.status(400).json({ error: "Password and Email are required." });
   }
 
   try {
-    const user = await Employee.findOne({ empId: req.body.empId });
+    const user = await Employee.findOne({ email: req.body.email });
+    console.log(user,"139");
     let tokenData = {
-      id: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      phone: user.phone,
-      email: user.email,
-      role: user.role,
-      empId: user.empId,
+      data:user
     };
+
+   
     if (!user) {
       return res.status(401).json({ error: "Invalid credentials." });
     }
@@ -154,6 +170,59 @@ const appLogin = async (req, res) => {
   } catch (error) {
     // logger.error('Error checking user:', error);
     res.status(500).json({ error: "An error occurred while checking user." });
+  }
+};
+const getEmployeeDetails= async(req,res)=>{
+  try {
+    // Fetch all KPI documents from the database
+    const empInfo = await Employee.find();
+
+    return res.status(200).json({
+      status: 200,
+      success: true,
+      data: empInfo,
+      message: "Logged Employee data retrieved successfully",
+    });
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return res.status(500).json({
+      status: 500,
+      success: false,
+      error: "An error occurred while fetching data.",
+    });
+  }
+}
+const getManagerList = async (req, res) => {
+  let managerData =[]
+  try {
+    // Fetch all KPI documents from the database
+    const kpiData = await Employee.find({role:req.params.role});
+console.log(kpiData,"189");
+
+kpiData.forEach((element)=>{
+  managerData.push({
+    empId:element.empId,
+    name: element.firstName +' ' +element.lastName,
+    userName:element.userName,
+    email:element.email,
+  })
+  
+ 
+})
+return res.status(200).json({
+  status: 200,
+  success: true,
+  data: managerData,
+  message: "Manager Information data retrieved successfully",
+});
+   
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return res.status(500).json({
+      status: 500,
+      success: false,
+      error: "An error occurred while fetching data.",
+    });
   }
 };
 const getEmployeeByID = async (req, res) => {
@@ -837,6 +906,8 @@ module.exports = {
   employeeCollection_put,
   processKpiUpdateByIdForAdmin,
   adminprocessKpidelete,
+  getEmployeeDetails,
+  getManagerList,
   getEmployeeByID,
   employeeCollection_post,
   employeeCollection_get,

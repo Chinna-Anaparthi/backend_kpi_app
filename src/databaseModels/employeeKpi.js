@@ -8,6 +8,7 @@ const employeeSchema = new mongoose.Schema({
     email: String,
     phone:Number,
     role : String,
+    userName:String,
     practice:String,
     password:String,
     location:String,
@@ -15,6 +16,7 @@ const employeeSchema = new mongoose.Schema({
     directorName:String,
     hrName:String,
     profileImag:String,
+    team:[],
     quater: [],
     empTime: { type: Date, default: Date.now }
 });

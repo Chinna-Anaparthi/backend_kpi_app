@@ -81,9 +81,16 @@ app.post("/api/register", (req, res, next) => {
 app.post("/api/login", (req, res, next) => {
   serverLogic.appLogin(req, res, () => {});
 });
+app.get("/api/getEmployee", (req, res, next) => {
+  serverLogic.getEmployeeDetails(req, res, () => {});
+});
+app.get("/api/getEmployee/:role", (req, res, next) => {
+  serverLogic.getManagerList(req, res, () => {});
+});
 app.get("/api/getEmployee/:empId", (req, res, next) => {
   serverLogic.getEmployeeByID(req, res, () => {});
 });
+
 
 app.get("/api/getEmployee/:empId/:Quater?", (req, res, next) => {
   serverLogic.employeeCollection_get(req, res, () => {});
