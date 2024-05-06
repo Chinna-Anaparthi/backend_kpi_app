@@ -1,20 +1,22 @@
 var express = require("express");
 const mongoose = require("mongoose");
 const serverLogic = require("../controller/kpiService");
-require("dotenv").config();
+require('dotenv').config();
+
 const app = express();
 const cors = require("cors");
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 app.use(cors());
-const port = process.env.PORT || 5000;
 const ip = "localhost";
 // console.log(process.env.DATAURL,"12");
-const uri = process.env.MONGO_UR;
+
+
+const mongoURI = process.env.MONGO_URI;
+const port = process.env.PORT;
+
 mongoose
-  .connect(
-    "mongodb+srv://subhamkvgms112:ht6kj7ToqUvY7UOp@cluster0.gy0dwhf.mongodb.net/"
-  )
+  .connect(mongoURI)
   .then(() => {
     console.log("Connected to MongoDB");
   })
