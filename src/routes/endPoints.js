@@ -15,6 +15,7 @@ const ip = "localhost";
 const mongoURI = process.env.MONGO_URI;
 const port = process.env.PORT;
 
+
 mongoose
   .connect(mongoURI)
   .then(() => {
@@ -86,10 +87,11 @@ app.post("/api/login", (req, res, next) => {
 app.get("/api/getEmployee", (req, res, next) => {
   serverLogic.getEmployeeDetails(req, res, () => {});
 });
-app.get("/api/getEmployee/:role", (req, res, next) => {
+app.get("/api/getEmployeeByRole/:role", (req, res, next) => {
   serverLogic.getManagerList(req, res, () => {});
 });
 app.get("/api/getEmployee/:empId", (req, res, next) => {
+  console.log(req.params,"93");
   serverLogic.getEmployeeByID(req, res, () => {});
 });
 
